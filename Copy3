@@ -1,0 +1,96 @@
+import { StyleSheet, Text, View, SafeAreaView, StatusBar } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import Lyoko from '../../assets/svg/Lyoko.svg';
+import Geolocation from 'react-native-geolocation-service';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+
+
+const Exchange = () => {
+    Geolocation.requestAuthorization('always');
+    const [currentLocation, setCurrentLocation] = useState();
+    {/*useEffect(() => {
+        if (Platform.OS === "android") {
+        PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        )
+        }
+    }, []) */}
+    useEffect(() => {
+        const watchId = Geolocation.watchPosition(
+        (position) => {
+            const { latitude, longitude } = position.coords
+            setCurrentLocation({ latitude, longitude })
+        },
+        (error) => {
+            console.log(error)
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0,
+            distanceFilter: 1,
+        }
+        )
+        return () => {
+        Geolocation.clearWatch(watchId)
+        }
+    }, [])
+
+    return (
+        <SafeAreaView style={{ backgroundColor: 'white', flex: 1}}>
+          <StatusBar
+            backgroundColor="white"
+            barStyle="dark-content"
+          />
+          <View
+            style={{
+              justifyContent: 'center',
+              flexDirection: 'row',
+              paddingHorizontal: 10,
+              alignItems: 'center',
+          }}>
+            <View style={{
+              justifyContent: 'center',
+              flexDirection: 'row',          
+              alignItems: 'center',           
+          }}>
+              <Lyoko />
+            </View>
+          </View>
+          <View>
+          <Text style={styles.title}>위도                   경도</Text>
+      {currentLocation ? ( 
+        <Text style={styles.title}>
+          {currentLocation.latitude} / {currentLocation.longitude}
+        </Text>
+      ) : (
+        <Text style={styles.title}>location undefined</Text>
+      )}
+          </View>
+          {/*<View>
+          <Map
+          provider={PROVIDER_GOOGLE}
+          initialRegion={{
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }}
+          />
+        </View>*/}
+        </SafeAreaView>
+      )
+}
+
+export default Exchange;
+
+const styles = StyleSheet.create({
+    title:{
+        paddingLeft: 20,
+        fontSize: 30,
+        color: '#000000',
+        paddingHorizontal: 10,
+        borderBottomColor: 'black',
+        fontWeight: 'bold'
+    }
+});
